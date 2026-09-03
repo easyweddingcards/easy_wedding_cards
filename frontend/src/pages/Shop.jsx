@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Search, Heart, Plus } from "lucide-react";
+import { Search, Heart, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { Toaster } from "../components/ui/sonner";
 import { Header } from "../components/landing/Header";
 import { Footer } from "../components/landing/Footer";
@@ -16,9 +16,15 @@ import {
 export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
   const urlCategory = searchParams.get("category") || "All";
+  const categoryRailRef = useRef(null);
 
   const counts = useMemo(() => categoryCounts(), []);
   const categories = useMemo(() => ["All", ...Object.keys(counts).filter((k) => k !== "All")], [counts]);
+  const sortOptions = [
+    { value: "featured", label: "Featured" },
+    { value: "price-asc", label: "Low to High" },
+    { value: "price-desc", label: "High to Low" },
+  ];
 
   const { favorites, toggle } = useFavorites();
   const [query, setQuery] = useState("");
@@ -32,9 +38,32 @@ export default function Shop() {
     setVisible(PAGE_SIZE);
   }, [urlCategory]);
 
+  useEffect(() => {
+    const active = categoryRailRef.current?.querySelector("[data-active='true']");
+    active?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+  }, [category]);
+
   const pickCategory = (c) => {
     setVisible(PAGE_SIZE);
     setSearchParams(c === "All" ? {} : { category: c }, { replace: true });
+  };
+
+  const scrollCategories = (direction) => {
+    categoryRailRef.current?.scrollBy({
+      left: direction * Math.min(420, window.innerWidth * 0.72),
+      behavior: "smooth",
+    });
+  };
+
+  const handleCategoryKeyDown = (e) => {
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      scrollCategories(-1);
+    }
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      scrollCategories(1);
+    }
   };
 
   const filtered = useMemo(() => {
@@ -88,74 +117,126 @@ export default function Shop() {
           </div>
         </div>
 
-        {/* Sticky top filter bar */}
-        <div className="sticky top-16 md:top-20 z-30 bg-ivory/90 backdrop-blur-md border-b border-espresso/10">
-          <div className="mx-auto max-w-[1600px] px-5 sm:px-8 lg:px-12 py-4 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            {/* Category pills */}
-            <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-1 px-1 lg:mx-0 lg:px-0">
-              {categories.map((c) => {
-                const on = category === c;
-                return (
+        {/* Filter bar */}
+        <div className="bg-ivory/90 backdrop-blur-md border-b border-espresso/10">
+          <div className="mx-auto flex max-w-[1600px] flex-col gap-3 px-5 py-4 sm:px-8 lg:px-12">
+            <div className="grid items-center gap-3 lg:grid-cols-[minmax(0,1fr)_auto]">
+              {/* Category rail */}
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
                   <button
-                    key={c}
-                    onClick={() => pickCategory(c)}
-                    data-testid={`category-${slugify(c)}`}
-                    className={`shrink-0 border px-4 py-2 font-sans text-[0.6rem] uppercase tracking-[0.16em] transition-colors duration-300 ${
-                      on ? "border-espresso bg-espresso text-cream" : "border-espresso/20 text-espresso hover:border-espresso"
-                    }`}
+                    type="button"
+                    onClick={() => scrollCategories(-1)}
+                    aria-label="Scroll categories left"
+                    className="hidden h-9 w-9 shrink-0 items-center justify-center border border-espresso/20 bg-cream/30 text-espresso transition-colors duration-300 hover:border-espresso hover:bg-cream md:flex"
                   >
-                    {c === "All" ? "All" : c}
-                    <span className={`ml-1.5 ${on ? "text-cream/60" : "text-taupe/70"}`}>{counts[c]}</span>
+                    <ChevronLeft size={15} strokeWidth={1.5} />
                   </button>
-                );
-              })}
-            </div>
 
-            {/* Search + sort + saved */}
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="flex items-center gap-2 border-b border-espresso/25 pb-1.5">
-                <Search size={14} strokeWidth={1.5} className="text-taupe" />
-                <input
-                  value={query}
-                  onChange={(e) => {
-                    setQuery(e.target.value);
-                    setVisible(PAGE_SIZE);
-                  }}
-                  placeholder="Search"
-                  aria-label="Search cards"
-                  data-testid="shop-search-input"
-                  className="w-24 md:w-36 bg-transparent outline-none font-sans text-xs text-espresso placeholder:text-taupe/60"
-                />
+                  <div className="relative min-w-0 flex-1">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-gradient-to-r from-ivory to-transparent" />
+                    <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-gradient-to-l from-ivory to-transparent" />
+                    <div
+                      ref={categoryRailRef}
+                      tabIndex={0}
+                      onKeyDown={handleCategoryKeyDown}
+                      aria-label="Card categories"
+                      className="no-scrollbar flex scroll-px-4 gap-2 overflow-x-auto px-1 py-1 scroll-smooth outline-none focus-visible:ring-1 focus-visible:ring-espresso/35"
+                    >
+                      {categories.map((c) => {
+                        const on = category === c;
+                        return (
+                          <button
+                            key={c}
+                            onClick={() => pickCategory(c)}
+                            data-active={on ? "true" : "false"}
+                            data-testid={`category-${slugify(c)}`}
+                            className={`shrink-0 border px-4 py-2 font-sans text-[0.6rem] uppercase tracking-[0.16em] transition-colors duration-300 ${
+                              on ? "border-espresso bg-espresso text-cream" : "border-espresso/20 text-espresso hover:border-espresso hover:bg-cream"
+                            }`}
+                          >
+                            {c === "All" ? "All" : c}
+                            <span className={`ml-1.5 ${on ? "text-cream/60" : "text-taupe/70"}`}>{counts[c]}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => scrollCategories(1)}
+                    aria-label="Scroll categories right"
+                    className="hidden h-9 w-9 shrink-0 items-center justify-center border border-espresso/20 bg-cream/30 text-espresso transition-colors duration-300 hover:border-espresso hover:bg-cream md:flex"
+                  >
+                    <ChevronRight size={15} strokeWidth={1.5} />
+                  </button>
+                </div>
               </div>
 
-              <select
-                value={sort}
-                onChange={(e) => {
-                  setSort(e.target.value);
-                  setVisible(PAGE_SIZE);
-                }}
-                data-testid="sort-select"
-                aria-label="Sort"
-                className="bg-transparent border-b border-espresso/25 pb-1.5 font-sans text-xs text-espresso outline-none cursor-pointer"
-              >
-                <option value="featured">Sort: Featured</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-              </select>
+              {/* Search + saved */}
+              <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 lg:justify-end">
+                <div className="flex min-w-[9.5rem] items-center gap-2 border-b border-espresso/25 pb-1.5">
+                  <Search size={14} strokeWidth={1.5} className="text-taupe" />
+                  <input
+                    value={query}
+                    onChange={(e) => {
+                      setQuery(e.target.value);
+                      setVisible(PAGE_SIZE);
+                    }}
+                    placeholder="Search"
+                    aria-label="Search cards"
+                    data-testid="shop-search-input"
+                    className="w-24 bg-transparent font-sans text-xs text-espresso outline-none placeholder:text-taupe/60 md:w-36"
+                  />
+                </div>
 
-              <button
-                onClick={() => {
-                  setShowFavorites((v) => !v);
-                  setVisible(PAGE_SIZE);
-                }}
-                data-testid="favorites-toggle"
-                className={`flex items-center gap-1.5 font-sans text-[0.6rem] uppercase tracking-[0.16em] transition-colors duration-300 ${
-                  showFavorites ? "text-rose" : "text-espresso hover:text-rose"
-                }`}
+                <button
+                  onClick={() => {
+                    setShowFavorites((v) => !v);
+                    setVisible(PAGE_SIZE);
+                  }}
+                  data-testid="favorites-toggle"
+                  className={`flex items-center gap-1.5 font-sans text-[0.6rem] uppercase tracking-[0.16em] transition-colors duration-300 ${
+                    showFavorites ? "text-rose" : "text-espresso hover:text-rose"
+                  }`}
+                >
+                  <Heart size={13} strokeWidth={1.5} className={showFavorites ? "fill-rose text-rose" : ""} />
+                  Saved ({favorites.length})
+                </button>
+              </div>
+            </div>
+
+            <div className="border-t border-espresso/10 pt-3">
+              <div
+                role="group"
+                aria-label="Sort cards"
+                data-testid="sort-button-group"
+                className="inline-flex w-full max-w-full items-center gap-1 overflow-x-auto bg-cream/35 p-1 md:w-auto"
               >
-                <Heart size={13} strokeWidth={1.5} className={showFavorites ? "fill-rose text-rose" : ""} />
-                Saved ({favorites.length})
-              </button>
+                {sortOptions.map((option) => {
+                  const selected = sort === option.value;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      aria-current={selected ? "true" : undefined}
+                      data-testid={`sort-${option.value}`}
+                      onClick={() => {
+                        setSort(option.value);
+                        setVisible(PAGE_SIZE);
+                      }}
+                      className={`min-h-9 flex-1 whitespace-nowrap border px-3 py-2 text-center font-sans text-[0.58rem] uppercase tracking-[0.14em] transition-colors duration-300 md:flex-none ${
+                        selected
+                          ? "border-espresso bg-espresso text-cream"
+                          : "border-transparent text-espresso hover:border-espresso/20 hover:bg-ivory"
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
