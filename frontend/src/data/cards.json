@@ -1,5 +1,37 @@
 [
   {
+    "id": "test two",
+    "category": "The UHP Edit",
+    "price": 300,
+    "featured": true,
+    "size": "12 × 20 cm",
+    "material": "300 GSM Paper",
+    "description": "jghjh",
+    "applyWatermark": true,
+    "watermarkPos": "center",
+    "watermarkSize": "medium",
+    "watermarkColor": "#ffd700",
+    "images": [
+      "frontend/src/assets/cards/display/test-two-1.jpeg"
+    ],
+    "originals": [
+      "frontend/src/assets/cards/originals/test-two-1.jpeg"
+    ],
+    "imageWatermarks": [
+      null
+    ],
+    "variants": [
+      {
+        "name": "john",
+        "size_id": 5,
+        "material_id": 3,
+        "size": "12 × 20 cm",
+        "material": "300 GSM Paper",
+        "price": 300
+      }
+    ]
+  },
+  {
     "id": "Teal & Gold Imperial Peacock",
     "category": "The Traditional Edit",
     "price": 30,
