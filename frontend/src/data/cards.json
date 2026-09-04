@@ -1,5 +1,37 @@
 [
   {
+    "id": "Luxury Botanical",
+    "category": "The Vellum Edit",
+    "price": 0,
+    "featured": false,
+    "size": "14 × 20 cm",
+    "material": "300 GSM Paper",
+    "description": "An elegant wedding invitation set featuring delicate botanical floral illustrations, refined typography, and a soft pearl-white palette",
+    "applyWatermark": true,
+    "watermarkPos": "bottom-left",
+    "watermarkSize": "small",
+    "watermarkColor": "#0d0d0d",
+    "images": [
+      "frontend/src/assets/cards/display/luxury-botanical-1.png"
+    ],
+    "originals": [
+      "frontend/src/assets/cards/originals/luxury-botanical-1.png"
+    ],
+    "imageWatermarks": [
+      null
+    ],
+    "variants": [
+      {
+        "name": "",
+        "size_id": 3,
+        "material_id": 3,
+        "size": "14 × 20 cm",
+        "material": "300 GSM Paper",
+        "price": 0
+      }
+    ]
+  },
+  {
     "id": "Teal & Gold Imperial Peacock",
     "category": "The Traditional Edit",
     "price": 30,
