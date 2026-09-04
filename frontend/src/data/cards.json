@@ -1,5 +1,37 @@
 [
   {
+    "id": "Burgundy Floral",
+    "category": "The Floral Edit",
+    "price": 30,
+    "featured": false,
+    "size": "19 × 19 cm",
+    "material": "300 GSM Paper",
+    "description": "A luxurious and romantic wedding invitation set featuring a rich burgundy folder paired with an elegant white invitation card.",
+    "applyWatermark": true,
+    "watermarkPos": "bottom-left",
+    "watermarkSize": "small",
+    "watermarkColor": "#121211",
+    "images": [
+      "frontend/src/assets/cards/display/burgundy-floral-1.png"
+    ],
+    "originals": [
+      "frontend/src/assets/cards/originals/burgundy-floral-1.png"
+    ],
+    "imageWatermarks": [
+      null
+    ],
+    "variants": [
+      {
+        "name": "",
+        "size_id": 2,
+        "material_id": 3,
+        "size": "19 × 19 cm",
+        "material": "300 GSM Paper",
+        "price": 30
+      }
+    ]
+  },
+  {
     "id": "Luxury Botanical",
     "category": "The Vellum Edit",
     "price": 0,
